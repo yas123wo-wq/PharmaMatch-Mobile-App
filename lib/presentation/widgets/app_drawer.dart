@@ -49,14 +49,24 @@ class AppDrawer extends StatelessWidget {
                   leading: const Icon(Icons.settings_rounded, color: AppTheme.textSecondary),
                   title: const Text('الإعدادات', style: TextStyle(color: AppTheme.textPrimary)),
                   onTap: () {
-                    Navigator.pop(context);
+                    _showNoticeDialog(
+                      context,
+                      title: 'الإعدادات',
+                      message: 'تخصيص إعدادات التطبيق والتنبيهات قيد التطوير حالياً وستكون متاحة في الإصدار القادم.',
+                      icon: Icons.settings_rounded,
+                    );
                   },
                 ),
                 ListTile(
                   leading: const Icon(Icons.help_outline_rounded, color: AppTheme.textSecondary),
                   title: const Text('المساعدة والدعم', style: TextStyle(color: AppTheme.textPrimary)),
                   onTap: () {
-                    Navigator.pop(context);
+                    _showNoticeDialog(
+                      context,
+                      title: 'الدعم الفني',
+                      message: 'للمساعدة والاستفسار يرجى التواصل مع الدعم الفني لمشروع PharmaMatch. هذه الميزة ستكون مجهزة بالكامل في الإصدار القادم.',
+                      icon: Icons.support_agent_rounded,
+                    );
                   },
                 ),
               ],
@@ -139,7 +149,16 @@ class AppDrawer extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: SafeArea(
         child: OutlinedButton.icon(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('تم تسجيل الخروج بنجاح'),
+                backgroundColor: AppTheme.primaryBlue,
+                duration: Duration(seconds: 2),
+              ),
+            );
+          },
           icon: const Icon(Icons.logout_rounded, color: AppTheme.errorRed),
           label: const Text('تسجيل الخروج', style: TextStyle(color: AppTheme.errorRed)),
           style: OutlinedButton.styleFrom(
@@ -151,6 +170,65 @@ class AppDrawer extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void _showNoticeDialog(
+    BuildContext context, {
+    required String title,
+    required String message,
+    required IconData icon,
+  }) {
+    Navigator.pop(context); // إغلاق القائمة الجانبية أولاً
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppTheme.lightBlue,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: AppTheme.primaryBlue, size: 24),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          message,
+          style: const TextStyle(
+            fontSize: 14,
+            height: 1.6,
+            color: AppTheme.textSecondary,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            style: TextButton.styleFrom(
+              foregroundColor: AppTheme.primaryBlue,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            ),
+            child: const Text(
+              'حسناً',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+            ),
+          ),
+        ],
       ),
     );
   }

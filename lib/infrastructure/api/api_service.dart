@@ -100,6 +100,32 @@ class ApiService {
     }
   }
 
+  static Future<dynamic> _put(
+      String endpoint, Map<String, dynamic> body) async {
+    try {
+      var uri = Uri.parse('$baseUrl$endpoint');
+      var response = await http
+          .put(uri, headers: _headers, body: jsonEncode(body))
+          .timeout(timeout);
+
+      if (response.statusCode == 307 || response.statusCode == 308 || response.statusCode == 301 || response.statusCode == 302) {
+        final redirectUrl = response.headers['location'];
+        if (redirectUrl != null) {
+          final redirectedUri = Uri.parse(redirectUrl);
+          response = await http
+              .put(redirectedUri, headers: _headers, body: jsonEncode(body))
+              .timeout(timeout);
+        }
+      }
+
+      return _handleResponse(response);
+    } on SocketException {
+      throw ApiException('تعذر الاتصال بسيرفر ASP.NET على ($baseUrl)');
+    } on HttpException {
+      throw ApiException('خطأ في الاتصال بالخادم');
+    }
+  }
+
   static dynamic _handleResponse(http.Response response) {
     final statusCode = response.statusCode;
     if (statusCode >= 200 && statusCode < 300) {
@@ -216,6 +242,32 @@ class ApiService {
       return DrugModel.fromJson(mapData as Map<String, dynamic>);
     } catch (e) {
       print('API Error in addDrug: $e');
+      rethrow;
+    }
+  }
+
+  static Future<DrugModel> updateDrug(int id, Map<String, dynamic> drugData) async {
+    try {
+      final payload = {
+        'id': id,
+        'tradeName': drugData['tradeName'] ?? drugData['name'],
+        'name': drugData['name'] ?? drugData['tradeName'],
+        'scientificName': drugData['scientificName'] ?? drugData['active_ingredient'] ?? drugData['activeIngredient'],
+        'activeIngredient': drugData['activeIngredient'] ?? drugData['active_ingredient'] ?? drugData['scientificName'],
+        'categoryName': drugData['categoryName'] ?? drugData['category'],
+        'category': drugData['category'] ?? drugData['categoryName'],
+        'price': double.tryParse(drugData['price'].toString()) ?? 0.0,
+        'stock': int.tryParse(drugData['stock'].toString()) ?? 10,
+        'initialQuantity': int.tryParse(drugData['stock'].toString()) ?? 10,
+        'expiryDate': drugData['expiry_date'] ?? drugData['expiryDate'],
+        'batchNumber': drugData['batchNumber'] ?? 'BN-$id',
+      };
+
+      final data = await _put('/ProductMedicines/$id', payload);
+      final mapData = data is Map ? (data['data'] ?? data) : data;
+      return DrugModel.fromJson(mapData as Map<String, dynamic>);
+    } catch (e) {
+      print('API Error in updateDrug: $e');
       rethrow;
     }
   }

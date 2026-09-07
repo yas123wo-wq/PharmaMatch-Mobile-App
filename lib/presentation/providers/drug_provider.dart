@@ -74,6 +74,18 @@ class DrugProvider extends ChangeNotifier {
     } catch (_) {}
   }
 
+  Future<bool> updateDrug(int id, Map<String, dynamic> drugData) async {
+    try {
+      await _drugAppService.updateDrug(id, drugData);
+      await loadDrugs();
+      return true;
+    } catch (e) {
+      _errorMessage = e is ApiException ? e.message : 'حدث خطأ أثناء تعديل الدواء';
+      notifyListeners();
+      return false;
+    }
+  }
+
   void clearSearch() {
     _searchResults = [];
     _searchQuery = '';

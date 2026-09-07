@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../domain/entities/drug_entity.dart';
 import '../providers/favorites_provider.dart';
+import '../widgets/add_drug_bottom_sheet.dart';
 
 class DrugDetailScreen extends StatelessWidget {
   final DrugEntity drug;
@@ -16,6 +17,18 @@ class DrugDetailScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(drug.name),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.edit_rounded),
+            tooltip: 'تعديل الدواء',
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (_) => AddDrugBottomSheet(drugToEdit: drug),
+              );
+            },
+          ),
           Consumer<FavoritesProvider>(
             builder: (context, favProvider, child) {
               final isFavorite = favProvider.isFavorite(drug.id);
@@ -131,6 +144,30 @@ class DrugDetailScreen extends StatelessWidget {
                   const Divider(height: 24, color: AppTheme.dividerColor),
                   _buildDetailRow('حالة المخزون:', drug.stockStatus),
                 ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (_) => AddDrugBottomSheet(drugToEdit: drug),
+                );
+              },
+              icon: const Icon(Icons.edit_rounded),
+              label: const Text(
+                'تعديل بيانات هذا الدواء',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryBlue,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ],

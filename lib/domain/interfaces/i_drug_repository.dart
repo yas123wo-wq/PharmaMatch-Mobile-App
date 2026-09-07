@@ -7,4 +7,5 @@ abstract class IDrugRepository {
   Future<DrugEntity> getDrugById(int id);
   Future<List<String>> getActiveIngredients({String? query});
   Future<DrugEntity> addDrug(Map<String, dynamic> drugData);
+  Future<DrugEntity> updateDrug(int id, Map<String, dynamic> drugData);
 }
