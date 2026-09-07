@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/drug_entity.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/navigation/app_router.dart';
+import 'add_drug_bottom_sheet.dart';
 
 class DrugCard extends StatelessWidget {
   final DrugEntity drug;
@@ -39,7 +41,7 @@ class DrugCard extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () {
-            // TODO: Navigate to details screen if needed
+            Navigator.pushNamed(context, AppRouter.drugDetail, arguments: drug);
           },
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -85,6 +87,24 @@ class DrugCard extends StatelessWidget {
                           ),
                         ],
                       ),
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.edit_outlined,
+                        color: AppTheme.primaryBlue,
+                        size: 22,
+                      ),
+                      tooltip: 'تعديل الدواء',
+                      onPressed: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (_) => AddDrugBottomSheet(drugToEdit: drug),
+                        );
+                      },
+                      padding: const EdgeInsets.only(left: 8),
+                      constraints: const BoxConstraints(),
                     ),
                     IconButton(
                       icon: Icon(

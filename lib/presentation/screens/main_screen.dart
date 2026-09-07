@@ -1,5 +1,7 @@
 // lib/presentation/screens/main_screen.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/profile_provider.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/add_drug_bottom_sheet.dart';
 import 'home_screen.dart';
@@ -17,6 +19,14 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ProfileProvider>().loadProfile();
+    });
+  }
 
   final List<Widget> _screens = const [
     HomeScreen(),

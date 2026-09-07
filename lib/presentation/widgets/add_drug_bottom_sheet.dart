@@ -2,11 +2,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
+import '../../domain/entities/drug_entity.dart';
 import '../../infrastructure/api/api_service.dart';
 import '../providers/drug_provider.dart';
 
 class AddDrugBottomSheet extends StatefulWidget {
-  const AddDrugBottomSheet({super.key});
+  final DrugEntity? drugToEdit;
+  const AddDrugBottomSheet({super.key, this.drugToEdit});
 
   @override
   State<AddDrugBottomSheet> createState() => _AddDrugBottomSheetState();
@@ -27,6 +29,25 @@ class _AddDrugBottomSheetState extends State<AddDrugBottomSheet> {
   bool _isSubmitting = false;
   String? _statusBannerMessage;
   bool _isBannerSuccess = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.drugToEdit != null) {
+      final d = widget.drugToEdit!;
+      _nameController.text = d.name;
+      _activeIngredientController.text = d.activeIngredient;
+      _priceController.text = d.price.toString();
+      _stockController.text = d.stock.toString();
+      _locationController.text = d.location == 'غير محدد' ? '' : d.location;
+      if (_categories.contains(d.category)) {
+        _selectedCategory = d.category;
+      } else {
+        _selectedCategory = 'أخرى';
+      }
+      _selectedExpiryDate = d.expiryDate;
+    }
+  }
 
   final List<String> _categories = [
     'مسكنات',
@@ -72,24 +93,36 @@ class _AddDrugBottomSheetState extends State<AddDrugBottomSheet> {
       };
 
       try {
-        await ApiService.addDrug(drugData);
+        if (widget.drugToEdit != null) {
+          await ApiService.updateDrug(widget.drugToEdit!.id, drugData);
+        } else {
+          await ApiService.addDrug(drugData);
+        }
         
         if (mounted) {
           context.read<DrugProvider>().loadDrugs();
           
+          final successText = widget.drugToEdit != null
+              ? 'تم تعديل بيانات الدواء بنجاح في قاعدة البيانات!'
+              : 'تم إضافة الدواء بنجاح وحفظه في قاعدة البيانات!';
+
           setState(() {
             _isSubmitting = false;
-            _statusBannerMessage = 'تم إضافة الدواء بنجاح وحفظه في قاعدة البيانات!';
+            _statusBannerMessage = successText;
             _isBannerSuccess = true;
           });
 
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('تم إضافة الدواء بنجاح وحفظه في قاعدة البيانات'),
+            SnackBar(
+              content: Text(successText),
               backgroundColor: AppTheme.successGreen,
-              duration: Duration(seconds: 4),
+              duration: const Duration(seconds: 3),
             ),
           );
+
+          Future.delayed(const Duration(milliseconds: 600), () {
+            if (mounted) Navigator.pop(context, true);
+          });
         }
       } catch (e) {
         if (mounted) {
@@ -150,9 +183,9 @@ class _AddDrugBottomSheetState extends State<AddDrugBottomSheet> {
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
-                'إضافة دواء جديد',
-                style: TextStyle(
+              Text(
+                widget.drugToEdit != null ? 'تعديل بيانات الدواء' : 'إضافة دواء جديد',
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: AppTheme.textPrimary,
@@ -317,9 +350,9 @@ class _AddDrugBottomSheetState extends State<AddDrugBottomSheet> {
                         width: 20,
                         child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                       )
-                    : const Text(
-                        'حفظ الدواء',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    : Text(
+                        widget.drugToEdit != null ? 'حفظ التعديلات' : 'حفظ الدواء',
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
               ),
             ],

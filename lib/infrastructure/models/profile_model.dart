@@ -30,11 +30,11 @@ class ProfileModel extends ProfileEntity {
 
   static const ProfileModel mock = ProfileModel(
     id: 1,
-    name: 'د. أحمد عبد الرحمن',
-    role: 'مالك الصيدلية وإداري المخزون',
+    name: 'د. محمد عبدالله',
+    role: 'صيدلي مرخص',
     pharmacyName: 'صيدلية الشفاء الحديثة',
-    licenseNumber: 'PH-99281-A',
-    phone: '+966 50 123 4567',
+    licenseNumber: 'LIC-2024-9981-AR',
+    phone: '777777777',
     expiredDrugsCount: 1,
     totalAlternatives: 420,
   );

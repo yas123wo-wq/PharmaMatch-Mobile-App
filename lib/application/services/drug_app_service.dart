@@ -26,4 +26,8 @@ class DrugAppService {
   Future<DrugEntity> addDrug(Map<String, dynamic> drugData) {
     return _repository.addDrug(drugData);
   }
+
+  Future<DrugEntity> updateDrug(int id, Map<String, dynamic> drugData) {
+    return _repository.updateDrug(id, drugData);
+  }
 }

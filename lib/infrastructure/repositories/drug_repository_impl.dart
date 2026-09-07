@@ -28,4 +28,9 @@ class DrugRepositoryImpl implements IDrugRepository {
   Future<DrugEntity> addDrug(Map<String, dynamic> drugData) async {
     return await ApiService.addDrug(drugData);
   }
+
+  @override
+  Future<DrugEntity> updateDrug(int id, Map<String, dynamic> drugData) async {
+    return await ApiService.updateDrug(id, drugData);
+  }
 }
